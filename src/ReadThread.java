@@ -1,19 +1,19 @@
-import java.io.DataInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 
 public class ReadThread extends Thread {
 
-    private DataInputStream dataIn;
-    private Socket socket;
-    private ChatClient client;
+    private BufferedReader dataIn;
+    private final Socket socket;
+    private final ChatClient client;
 
     public ReadThread(Socket socket, ChatClient chatClient) {
         this.socket = socket;
         this.client = chatClient;
 
         try {
-            this.dataIn = new DataInputStream(this.socket.getInputStream());
+            InputStream input = this.socket.getInputStream();
+            dataIn = new BufferedReader(new InputStreamReader(input));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -23,11 +23,12 @@ public class ReadThread extends Thread {
     public void run() {
         while (true) {
             try {
-                String input = dataIn.readUTF();
-                System.out.println("\n" + input);
-                System.out.print(client.getUserName() + " >> ");
+                String input = dataIn.readLine();
+                System.out.println("\r" + input);
+                if (client.getUserName() != null) {
+                    System.out.print(client.getUserName() + " >> ");
+                }
             } catch (IOException e) {
-                e.printStackTrace();
                 break;
             }
         }

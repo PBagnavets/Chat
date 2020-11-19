@@ -4,7 +4,8 @@ import java.net.UnknownHostException;
 
 public class ChatClient {
 
-    private int port;
+    private final int port; //default value of port is 8080
+    public static final String STOP_WORD = "bye";
     private String userName;
 
     private ChatClient(int port) {
@@ -12,18 +13,13 @@ public class ChatClient {
     }
 
     public static void main(String[] args) {
-	    if (args.length < 2) {
-	        System.out.println("Please, enter port number next time.");
-	        System.exit(0);
-        }
-	    ChatClient chatClient = new ChatClient(Integer.parseInt(args[0]));
-	    chatClient.setUserName(args[1]);
-	    chatClient.runClient();
+	    ChatClient chatClient = new ChatClient(args.length > 0 ? Integer.parseInt(args[0]) : 8080);
+	    chatClient.startClient();
     }
 
-    private void runClient() {
+    private void startClient() {
         try {
-            Socket socket = new Socket("localhost", this.port);
+            Socket socket = new Socket("localhost", port);
 
             System.out.println("Connected to Chat Server");
 

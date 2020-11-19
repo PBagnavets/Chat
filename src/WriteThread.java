@@ -1,20 +1,19 @@
-import java.io.Console;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 
 public class WriteThread extends Thread {
 
-    private Socket socket;
-    private ChatClient client;
-    private DataOutputStream dataOut;
+    private final Socket socket;
+    private final ChatClient client;
+    private PrintWriter dataOut;
 
     public WriteThread(Socket socket, ChatClient client) {
         this.socket = socket;
         this.client = client;
 
         try {
-            this.dataOut = new DataOutputStream(this.socket.getOutputStream());
+            OutputStream output = socket.getOutputStream();
+            dataOut = new PrintWriter(output, true);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -24,28 +23,22 @@ public class WriteThread extends Thread {
     public void run() {
         Console console = System.console();
 
-        sendMessage(client.getUserName());
-
+        String userName = console.readLine("\nEnter your name: ");
+        dataOut.println(userName);
+        client.setUserName(userName);
         //MAIN
         String output;
-        do {
-            output = console.readLine(client.getUserName() + " >> ");
-            sendMessage(output);
-        } while (!output.equalsIgnoreCase("disconnect"));
-
+        if (userName != null) {
+            do {
+                output = console.readLine(userName + " >> ");
+                dataOut.println(output);
+            } while (!output.equalsIgnoreCase(ChatClient.STOP_WORD));
+        }
         //close socket
         try {
             socket.close();
         } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void sendMessage(String message) {
-        try {
-            dataOut.writeUTF(message);
-        } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Disconnected.");
         }
     }
 }
