@@ -35,10 +35,11 @@ public class WriteThread extends Thread {
             } while (!output.equalsIgnoreCase(ChatClient.STOP_WORD));
         }
         //close socket
+        System.out.println("You left chat server");
         try {
             socket.close();
         } catch (IOException e) {
-            System.out.println("Disconnected.");
+            System.exit(1);
         }
     }
 }
